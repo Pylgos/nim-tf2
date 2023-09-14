@@ -1,4 +1,5 @@
 import ./private/tf2_abi
+import ./common
 import concurrent/smartptrs
 import results
 import std/[times, hashes]
@@ -13,14 +14,6 @@ type
 
   TfBufferCore* = SharedPtr[TfBufferCoreObj]
 
-  TransformError* {.pure.} = enum
-    LookupError = 1, ConnectivityError = 2,
-    ExtrapolationError = 3, InvalidArgumentError = 4
-
-  TransformResult* = Result[TransformStamped, TransformError]
-
-  FrameId* = distinct string
-
   TransformableRequestHandle* = distinct tf2c_transformable_request_handle_t
 
   TransformableRequestResult* = enum
@@ -28,15 +21,9 @@ type
   
   TransformableCallback* = proc(requestHandle: TransformableRequestHandle, targetFrame, sourceFrame: FrameId, time: Time, transformableResult: TransformableRequestResult, userdata: pointer) {.nimcall.}
 
-proc `==`*(a, b: FrameId): bool {.borrow.}
-proc hash*(a: FrameId): Hash {.borrow.}
-proc `$`*(a: FrameId): string {.borrow.}
-
 proc `==`*(a, b: TransformableRequestHandle): bool {.borrow.}
 proc hash*(a: TransformableRequestHandle): Hash {.borrow.}
 proc `$`*(a: TransformableRequestHandle): string {.borrow.}
-
-const TimePointZero* = Time.low
 
 proc `=destroy`(self: TfBufferCoreObj) =
   if self.impl != nil:
@@ -187,6 +174,8 @@ proc cancelTransformableRequest*(
     self; handle: TransformableRequestHandle) =
   tf2c_cancel_transformable_request(self.impl, handle.tf2c_transformable_request_handle_t)
 
+export common
+
 when isMainModule:
   let buf = newTfBufferCore()
   proc cb(requestHandle: TransformableRequestHandle, targetFrame, sourceFrame: FrameId, time: Time, transformableResult: TransformableRequestResult, userdata: pointer) =
@@ -197,3 +186,5 @@ when isMainModule:
   echo buf.setTransform(TransformStamped(header: Header(frameId: "to"), childFrameId: "from"), "")
   echo buf.allFramesAsYaml()
   echo buf.allFramesAsString()
+
+

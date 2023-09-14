@@ -12,6 +12,8 @@ srcDir        = "src"
 requires "nim >= 2.0"
 requires "rclnim"
 requires "results"
+requires "https://github.com/Pylgos/geonimetry.git"
+requires "https://github.com/Pylgos/toconv.git"
 
 task genTf2cBinding, "generate tf2c binding with c2nim":
   exec """c2nim ./src/tf2/private/tf2c.h \

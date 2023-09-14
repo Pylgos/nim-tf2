@@ -1,4 +1,4 @@
-import ./tfbuffercore
+import ./[tfbuffercore, common]
 import std/times except milliseconds, seconds
 import rclnim/[rosinterfaceimporters, nodes, subscriptions, qosprofiles, chronossupport, init]
 import chronos
@@ -122,6 +122,7 @@ proc waitForTransform*(self; targetFrame, sourceFrame: FrameId, time: Time): Fut
     retFut.cancelCallback = cancellation
   retFut
 
+export common
 
 when isMainModule:
   init()
